@@ -63,7 +63,7 @@ if [ -z "${HAS_LANG_CPP}" ]; then
 	HAS_LANG_CPP="true"
 fi
 if [ -z "${HAS_LANG_JAVA}" ]; then
-	HAS_LANG_JAVA="true"
+	HAS_LANG_JAVA="false"
 fi
 if [ -z "${HAS_LANG_PASCAL}" ]; then
 	HAS_LANG_PASCAL="false"
