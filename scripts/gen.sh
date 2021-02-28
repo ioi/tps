@@ -133,8 +133,6 @@ if ! "${SKIP_SOL}"; then
 fi
 
 
-sensitive check_file_exists "Generation data file" "${gen_data_file}"
-
 command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
 
 export SENSITIVE_RUN WARNING_SENSITIVE_RUN UPDATE_MODE SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_GEN SKIP_SOL SKIP_VAL
@@ -173,6 +171,8 @@ if "${UPDATE_MODE}" || "${SKIP_GEN}"; then
 else
 	recreate_dir "${tests_dir}"
 fi
+
+sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
 ret=0
 "${PYTHON}" "${INTERNALS}/gen.py" "${gen_data_file}" "${tests_dir}" || ret=$?
