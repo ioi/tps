@@ -78,6 +78,26 @@
  *
  */
 
+/*
+ * Jonathan Irvin Gunawan:
+ *
+ * Further modified from changes by Kian Mirjalali for APIO 2021 and IOI 2022.
+ *
+ * * Print 4 digits after the decimal point for partial scoring.
+ *   This is to ensure that the grade multiplied by 100 still has at least 2
+ *   digits after the decimal point.
+ *
+ * * Rename verdict strings to match with CMS default verdict and the rules.
+ *   * "Correct" -> "Output is correct"
+ *   * "Wrong Answer" -> "Output isn't correct"
+ *   * "Partially Correct" -> "Output is partially correct"
+ *
+ * * Rename "Security Violation" to "Protocol violation".
+ *   This change was recommended by ISC in IOI 2020.
+ *
+ */
+
+
 /* NOTE: This file contains testlib library for C++.
  *
  *   Check, using testlib running format:
@@ -2531,14 +2551,14 @@ NORETURN void InStream::quit(TResult result, const char* msg)
         case _ok:
             pointsStr = format("%d", 1);
             color = LightGreen;
-            errorName = "Correct";
+            errorName = "Output is correct";
             break;
         case _wa:
         case _pe:
         case _dirt:
         case _unexpected_eof:
             color = LightRed;
-            errorName = "Wrong Answer";
+            errorName = "Output isn't correct";
             break;
         case _fail:
             color = LightMagenta;
@@ -2546,17 +2566,17 @@ NORETURN void InStream::quit(TResult result, const char* msg)
             break;
         case _sv:
             color = LightMagenta;
-            errorName = "Security Violation";
+            errorName = "Protocol violation";
             break;
         case _points:
             if (__testlib_points < 1e-5)
                 pointsStr = "0.00001";//prevent zero scores in CMS as zero is considered wrong
             else if (__testlib_points < 0.0001)
-                pointsStr = format("%lf", __testlib_points);//prevent rounding the numbers below 0.001
+                pointsStr = format("%lf", __testlib_points);//prevent rounding the numbers below 0.0001
             else
                 pointsStr = format("%.4lf", __testlib_points);
             color = LightYellow;
-            errorName = "Partially Correct";
+            errorName = "Output is partially correct";
             break;
         default:
             if (result >= _partially)
