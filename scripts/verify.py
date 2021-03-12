@@ -47,7 +47,8 @@ SUBTASKS_JSON_RELATIVE = get_relative(SUBTASKS_JSON)
 #TODO read these variables from problem.json
 has_markdown_statement = True
 
-git_enabled = True
+# Not enabled when development of all problems is done in a single repo, to silent problem name warning mismatch
+git_enabled = False
 git_remote_name = "origin"
 
 valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
