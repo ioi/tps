@@ -29,6 +29,7 @@ PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 SOLUTIONS_JSON = os.environ.get('SOLUTIONS_JSON')
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 GEN_DATA = os.environ.get('GEN_DATA')
+GEN_DATA_GENERATOR = os.environ.get('GEN_DATA_GENERATOR')
 GEN_DIR = os.environ.get('GEN_DIR')
 VALIDATOR_DIR = os.environ.get('VALIDATOR_DIR')
 SOLUTION_DIR = os.environ.get('SOLUTION_DIR')
@@ -36,6 +37,8 @@ CHECKER_DIR = os.environ.get('CHECKER_DIR')
 GRADER_DIR = os.environ.get('GRADER_DIR')
 MANAGER_DIR = os.environ.get('MANAGER_DIR')
 STATEMENT_DIR = os.environ.get('STATEMENT_DIR')
+
+PYTHON = os.environ.get('PYTHON')
 
 
 def get_relative(full_path):
@@ -46,6 +49,7 @@ SUBTASKS_JSON_RELATIVE = get_relative(SUBTASKS_JSON)
 
 #TODO read these variables from problem.json
 has_markdown_statement = True
+generate_gen_data = True
 
 # Not enabled when development of all problems is done in a single repo, to silent problem name warning mismatch
 git_enabled = False
@@ -58,7 +62,7 @@ valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit
 necessary_files = [
     os.path.join(VALIDATOR_DIR, 'Makefile'),
     os.path.join(GEN_DIR, 'Makefile'),
-    GEN_DATA,
+    GEN_DATA_GENERATOR if generate_gen_data else GEN_DATA,
 ]
 
 semi_necessary_files = [
@@ -431,16 +435,28 @@ def verify_gen_data(subtasks):
 
 
     gen_data = GenDataVisitor()
-    try:
-        with open(GEN_DATA, 'r') as f:
+    if generate_gen_data:
+        try:
+            data = subprocess.check_output([PYTHON, GEN_DATA_GENERATOR], stderr=subprocess.STDOUT).decode('utf-8')
             try:
-                parse_data_or_throw(f.readlines(), Verification.problem, gen_data)
+                parse_data_or_throw(data.splitlines(), Verification.problem, gen_data)
             except DataParseError as e:
                 error(e.message)
                 return
-    except IOError:
-        error('file does not exist or is not readable')
-        return
+        except subprocess.CalledProcessError:
+            error('generator crashes')
+            return
+    else:
+        try:
+            with open(GEN_DATA, 'r') as f:
+                try:
+                    parse_data_or_throw(f.readlines(), Verification.problem, gen_data)
+                except DataParseError as e:
+                    error(e.message)
+                    return
+        except IOError:
+            error('file does not exist or is not readable')
+            return
 
     json_subtasks = set(subtasks.keys())
     gen_subtasks = set(gen_data.subtasks)

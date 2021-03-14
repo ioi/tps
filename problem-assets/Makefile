@@ -93,5 +93,5 @@ $(PY_TARGET_PATTERNS): ERR_OUTPUT=$(ERR_OUT_PREFIX)$*$(PY_ERR_OUT_SUFFIX)
 $(PY_TARGET_PATTERNS): RUN_COMMAND=python3 $< > $*
 $(PY_TARGET_PATTERNS): %.$(PY_EXT) $(PY_HEADERS)
 	@echo "$(RUN_COMMAND)"
-	@set -o pipefail  &&  $(RUN_COMMAND) 2>&1  |  tee -i $(ERR_TMP_OUTPUT) 1>&2
+	@set -o pipefail  &&  $(RUN_COMMAND) 2> >(tee -i $(ERR_TMP_OUTPUT) 1>&2)
 	@mv $(ERR_TMP_OUTPUT) $(ERR_OUTPUT)

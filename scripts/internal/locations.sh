@@ -18,6 +18,7 @@ LOGS_DIR="${BASE_DIR}/logs"
 
 GEN_DIR="${BASE_DIR}/gen"
 GEN_DATA="${GEN_DIR}/data"
+GEN_DATA_GENERATOR="${GEN_DIR}/data.py"
 
 TESTS_DIR="${BASE_DIR}/tests"
 MAPPING_FILE_NAME="mapping"
