@@ -7,7 +7,7 @@ source "${INTERNALS}/problem_util.sh"
 
 
 function usage {
-	errcho "Usage: <invoke> [options] <solution-path>"
+	errcho "Usage: <invoke-all> [options]"
 	errcho "Options:"
 
 	errcho -e "  -h, --help"
@@ -19,10 +19,6 @@ function usage {
 	errcho -e "  -w, --warning-sensitive"
 	errcho -e "\tTerminates on the first warning or error and shows the details."
 
-	errcho -e "  -r, --show-reason"
-	errcho -e "\tDisplays the reason for not being correct."
-	errcho -e "\tThe checker message is written in the case of wrong answer."
-
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
 	errcho -e "\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'"
@@ -31,13 +27,6 @@ function usage {
 
 	errcho -e "      --tests-dir=<tests-directory-path>"
 	errcho -e "\tOverrides the location of the tests directory"
-
-	errcho -e "      --no-check"
-	errcho -e "\tSkips running the checker on solution outputs."
-
-	errcho -e "      --no-sol-compile"
-	errcho -e "\tSkips compiling the solution."
-	errcho -e "\tUses the solution already compiled and available in the sandbox."
 
 	errcho -e "      --no-tle"
 	errcho -e "\tRemoves the default time limit on the execution of the solution."
@@ -61,8 +50,7 @@ WARNING_SENSITIVE_RUN="false"
 SPECIFIC_TESTS="false"
 SPECIFIED_TESTS_PATTERN=""
 SKIP_CHECK="false"
-VERBOSE_INVOKE="true"
-skip_compile_sol="false"
+VERBOSE_INVOKE="false"
 
 
 function handle_option {
@@ -79,21 +67,12 @@ function handle_option {
 			SENSITIVE_RUN="true"
 			WARNING_SENSITIVE_RUN="true"
 			;;
-		-r|--show-reason)
-			SHOW_REASON="true"
-			;;
 		-t|--test=*)
 			fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
 			SPECIFIC_TESTS="true"
 			;;
 		--tests-dir=*)
 			fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
-			;;
-		--no-check)
-			SKIP_CHECK="true"
-			;;
-		--no-sol-compile)
-			skip_compile_sol="true"
 			;;
 		--no-tle)
 			SOFT_TL=$((24*60*60))
@@ -111,20 +90,10 @@ function handle_option {
 }
 
 function handle_positional_arg {
-	if variable_not_exists "solution" ; then
-		solution="${curr}"
-		return
-	fi
 	invalid_arg "meaningless argument"
 }
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
-
-if variable_not_exists "solution" ; then
-	errcho "Solution is not specified."
-	usage
-	exit 2
-fi
 
 if ! is_windows && ! "${PYTHON}" -c "import psutil" >/dev/null 2>/dev/null; then
 	cerrcho error -n "Error: "
@@ -162,7 +131,6 @@ if "${PYTHON}" -c "import sys; sys.exit(0 if ${HARD_TL} <= ${SOFT_TL} else 1)"; 
 	exit 2
 fi
 
-sensitive check_file_exists "Solution file" "${solution}"
 sensitive check_directory_exists "Tests directory" "${tests_dir}"
 
 export SHOW_REASON SENSITIVE_RUN WARNING_SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL VERBOSE_INVOKE
@@ -171,14 +139,6 @@ export SHOW_REASON SENSITIVE_RUN WARNING_SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_
 recreate_dir "${LOGS_DIR}"
 
 export STATUS_PAD=20
-
-printf "%-${STATUS_PAD}scompile" "solution"
-if "${skip_compile_sol}"; then
-	echo_status "SKIP"
-else
-	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${solution}"
-fi
-echo
 
 if "${HAS_CHECKER}"; then
 	printf "%-${STATUS_PAD}scompile" "checker"
@@ -191,7 +151,7 @@ if "${HAS_CHECKER}"; then
 fi
 
 ret=0
-"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" "${solution}" || ret=$?
+"${PYTHON}" "${INTERNALS}/invoke_all.py" "${tests_dir}" || ret=$?
 
 
 echo

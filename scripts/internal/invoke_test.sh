@@ -21,8 +21,9 @@ function run_checker {
 	bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
 }
 
-
-printf "%-${STATUS_PAD}s" "${test_name}"
+if "${VERBOSE_INVOKE}"; then
+	printf "%-${STATUS_PAD}s" "${test_name}"
+fi
 
 failed_jobs=""
 final_ret=0
@@ -42,7 +43,9 @@ fi
 
 export BOX_PADDING=4
 
-echo -n "sol"
+if "${VERBOSE_INVOKE}"; then
+	echo -n "sol"
+fi
 sol_job="${test_name}.sol"
 execution_time=""
 
@@ -71,14 +74,18 @@ if ! is_in "${input_status}" "FAIL" "SKIP"; then
 fi
 
 sol_status="$(job_status ${sol_job})"
-echo_status "${sol_status}"
-printf "%7s" "${execution_time}"
-hspace 5
+if "${VERBOSE_INVOKE}"; then
+	echo_status "${sol_status}"
+	printf "%7s" "${execution_time}"
+	hspace 5
+fi
 
 
 export BOX_PADDING=5
 
-echo -n "check"
+if "${VERBOSE_INVOKE}"; then
+	echo -n "check"
+fi
 check_job="${test_name}.check"
 
 if ! is_in "${sol_status}" "FAIL" "SKIP"; then
@@ -109,24 +116,26 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 	fi
 fi
 
-check_status=$(job_status "${check_job}")
-echo_status "${check_status}"
+if "${VERBOSE_INVOKE}"; then
+	check_status=$(job_status "${check_job}")
+	echo_status "${check_status}"
 
-
-printf "%5s" "${score}"
-hspace 2
-export BOX_PADDING=20
-echo_verdict "${verdict}"
-
-if "${SHOW_REASON}"; then
+	printf "%5s" "${score}"
 	hspace 2
-	printf "%s" "${reason}"
+	export BOX_PADDING=20
+	echo_verdict "${verdict}"
+
+	if "${SHOW_REASON}"; then
+		hspace 2
+		printf "%s" "${reason}"
+	fi
+
+	echo
 fi
 
 echo "${score}" > "${LOGS_DIR}/${test_name}.score"
 echo "${verdict}" > "${LOGS_DIR}/${test_name}.verdict"
-
-echo
+echo "${execution_time}" > "${LOGS_DIR}/${test_name}.time"
 
 
 if "${SENSITIVE_RUN}"; then

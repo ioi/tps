@@ -190,7 +190,7 @@ It contains all solutions that are prepared and used in development of the task,
 
 ## solutions.json
 
-This file specifies the verdict of each solution. It is used by the web-interface to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
+This file specifies the verdict of each solution. It is used by the web-interface and `invoke` to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
 There is also a special verdict `model_solution` which should be used exactly once.
 The model solution is used to generate the correct outputs for test data.
 Below is an example:
@@ -558,7 +558,8 @@ Here are some notes/features on this command:
 ## invoke
 
 This command is used to compile a solution and the checker, 
-  run the solution over the test data (with the problem constraints, e.g. time limit) and check its output. 
+  run the solution over the test data (with the problem constraints, e.g. time limit) and check its output.
+If the filename exists in `solutions.json`, it will also compare the invocation verdict with the expected verdict.
 Here is the usage:
 
 ```
@@ -620,6 +621,16 @@ Here are some notes/features on this command:
 * In addition to the verdict,
    the running time and the score of the solution is printed for each test case.
   The score is usually zero or one, unless the verdict is `Partially Correct`.
+
+
+## invoke-all
+
+This command runs `invoke` for all solutions specified in `solutions.json`.
+
+All of the `invoke` command options are supported, except the following commands:
+* `-r, --show-reason`
+* `--no-check`
+* `--no-sol-compile`
 
 
 ## make-public
