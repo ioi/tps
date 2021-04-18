@@ -73,6 +73,8 @@ if __name__ == '__main__':
         ret = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).wait()
         if ret != 0:
             cprint(colors.FAIL, "{} does not compile".format(solution_filename))
+            unmatched_verdicts.append((solution_filename, '-', 'Compilation Failed', solution_data.get("verdict", None)))
+            continue
 
         for test_name in available_tests:
             command = [
