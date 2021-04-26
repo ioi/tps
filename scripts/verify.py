@@ -139,6 +139,10 @@ class Verification:
         for _warning in cls.warnings:
             cprint(colors.WARN, _warning)
 
+    @classmethod
+    def exit_code(cls):
+        return 1 if cls.errors else 0
+
 
 def error(description):
     Verification.error(description)
@@ -572,6 +576,7 @@ def verify():
     verify_existence_warn(semi_necessary_files)
 
     Verification.report()
+    quit(Verification.exit_code())
 
 
 if __name__ == "__main__":
