@@ -95,6 +95,11 @@
  * * Rename "Security Violation" to "Protocol violation".
  *   This change was recommended by ISC in IOI 2020.
  *
+ * * Add an option to skip printing message when calling quit().
+ *   For some tasks (especially output-only), we might want to skip printing the
+ *   message to CMS since it might contain any characters that is submitted by
+ *   the contestant.
+ *
  */
 
 
@@ -1860,6 +1865,7 @@ struct InStream
     size_t maxFileSize;
     size_t maxTokenLength;
     size_t maxMessageLength;
+    bool printMessage;
 
     void init(std::string fileName, TMode mode);
     void init(std::FILE* f, TMode mode);
@@ -2390,6 +2396,7 @@ InStream::InStream()
     maxFileSize = 128 * 1024 * 1024; // 128MB.
     maxTokenLength = 32 * 1024 * 1024; // 32MB.
     maxMessageLength = 32000;
+    printMessage = true;
 }
 
 InStream::InStream(const InStream& baseStream, std::string content)
@@ -2404,6 +2411,7 @@ InStream::InStream(const InStream& baseStream, std::string content)
     maxFileSize = 128 * 1024 * 1024; // 128MB.
     maxTokenLength = 32 * 1024 * 1024; // 32MB.
     maxMessageLength = 32000;
+    printMessage = true;
 }
 
 InStream::~InStream()
@@ -2653,17 +2661,24 @@ NORETURN void InStream::quit(TResult result, const char* msg)
                     std::fprintf(resultFile, "<result outcome = \"%s\" points = \"%s\">", outcomes[(int)result].c_str(), stringPoints.c_str());
                 }
             }
-            xmlSafeWrite(resultFile, msg);
+            if (printMessage)
+                xmlSafeWrite(resultFile, msg);
             std::fprintf(resultFile, "</result>\n");
         }
         else
-             std::fprintf(resultFile, "%s", msg);
+        {
+          if (printMessage)
+            std::fprintf(resultFile, "%s", msg);
+        }
         if (NULL == resultFile || fclose(resultFile) != 0)
             quit(_fail, "Can not write to the result file");
     }
 
-    quitscr(LightGray, msg);
-    std::fprintf(stderr, "\n");
+    if (printMessage)
+    {
+      quitscr(LightGray, msg);
+      std::fprintf(stderr, "\n");
+    }
 
     inf.close();
     ouf.close();
