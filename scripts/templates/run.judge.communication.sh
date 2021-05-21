@@ -16,15 +16,11 @@ NUM_SOL_PROCESSES=NUM_SOL_PROCESSES_PLACE_HOLDER
 
 pipe_sol2mgr=()
 pipe_mgr2sol=()
-solution_in=()
-solution_out=()
 solution_err=()
 solution_ret=()
 for ((i=0; i<NUM_SOL_PROCESSES; i++)); do
 	pipe_sol2mgr+=("${sandbox}/sol2mgr_${i}.fifo")
 	pipe_mgr2sol+=("${sandbox}/mgr2sol_${i}.fifo")
-	solution_in+=("${sandbox}/solution_${i}.in")
-	solution_out+=("${sandbox}/solution_${i}.out")
 	solution_err+=("${sandbox}/solution_${i}.err")
 	solution_ret+=("${sandbox}/solution_${i}.ret")
 done
@@ -51,7 +47,6 @@ trap "signal_handler -1" SIGTERM EXIT
 for ((i=0; i<NUM_SOL_PROCESSES; i++)); do
 	rm -f "${pipe_sol2mgr[$i]}" "${pipe_mgr2sol[$i]}"
 	mkfifo "${pipe_sol2mgr[$i]}" "${pipe_mgr2sol[$i]}"
-	touch "${solution_in[$i]}"
 done
 
 manager_args=()
@@ -67,7 +62,7 @@ manager_pid=$!
 solution_pid=()
 for ((i=0; i<NUM_SOL_PROCESSES; i++)); do
 	set -m
-	bash "${sandbox}/exec.sh" "${pipe_mgr2sol[$i]}" "${pipe_sol2mgr[$i]}" "$i" < "${solution_in[$i]}" > "${solution_out[$i]}" 2> "${solution_err[$i]}" &
+	bash "${sandbox}/exec.sh" "$i" < "${pipe_mgr2sol[$i]}" > "${pipe_sol2mgr[$i]}" 2> "${solution_err[$i]}" &
 	solution_pid+=($!)
 	set +m
 done
