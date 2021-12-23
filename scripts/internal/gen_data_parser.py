@@ -39,7 +39,7 @@ def parse_data_or_throw(gen_data, task_data, visitor):
     line_number = 0
 
     testset_index, testset_name = -1, None
-    subtask_index, subtask_counter = -1, -1
+    subtask_index, subtask_counter = -1, 0
     test_index, test_offset = 1, -1
     defined_testsets = set()
 
@@ -62,8 +62,11 @@ def parse_data_or_throw(gen_data, task_data, visitor):
                 visitor.on_testset(testset_name, line_number)
                 if command == "@subtask":
                     visitor.on_subtask(testset_name, line_number)
-                    subtask_counter += 1
-                    subtask_index = subtask_counter
+                    if testset_name != "samples":
+                        subtask_counter += 1
+                        subtask_index = subtask_counter
+                    else:
+                        subtask_index = 0
                 else:
                     subtask_index = -1
             elif command == "@include":

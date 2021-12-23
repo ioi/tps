@@ -371,6 +371,8 @@ def verify_subtasks():
         if Verification.problem['type'] != 'OutputOnly':
             check_keys(subtasks, ['samples'])
             hasSamples = True
+        else:
+            hasSamples = 'samples' in subtasks
     except KeyError:
         pass
 
@@ -394,6 +396,8 @@ def verify_subtasks():
         elif name == 'samples':
             if data['score'] != 0:
                 error('samples subtask score is non-zero')
+            if data['index'] != 0:
+                error('samples subtask index is non-zero')
         else:
             score_sum += data['score']
 
@@ -407,8 +411,9 @@ def verify_subtasks():
         error('sum of scores is {}'.format(score_sum))
 
     for i in range(len(subtasks)):
-        if i+(0 if hasSamples else 1) not in indexes:
-            error('missing index {} in subtask indexes'.format(i))
+        index = i+(0 if hasSamples else 1)
+        if index not in indexes:
+            error('missing index {} in subtask indexes'.format(index))
 
     return subtasks
 
@@ -424,7 +429,9 @@ def verify_gen_data(subtasks):
 
         def on_testset(self, testset_name, line_number):
             self.testsets.append(testset_name)
-            self.tests_map[testset_name] = set()
+            # We use list instead of set here to detect if there is more than
+            # one test in each subtask (since they will have the same filename).
+            self.tests_map[testset_name] = []
 
         def on_subtask(self, subtask_name, line_number):
             self.subtasks.append(subtask_name)
@@ -432,10 +439,10 @@ def verify_gen_data(subtasks):
 
         def on_include(self, testset_name, included_testset, line_number):
             self.used_testsets.add(included_testset)
-            self.tests_map[testset_name] |= self.tests_map[included_testset]
+            self.tests_map[testset_name] += self.tests_map[included_testset]
 
         def on_test(self, testset_name, test_name, line, line_number):
-            self.tests_map[testset_name].add(test_name)
+            self.tests_map[testset_name].append(test_name)
 
 
     gen_data = GenDataVisitor()
@@ -483,6 +490,14 @@ def verify_gen_data(subtasks):
                     warning("subtask '{}' has no tests".format(testset))
             else:
                 warning("testset '{}' has no tests".format(testset))
+
+    #Checking for multiple tests in one subtask for output only:
+    if Verification.problem['type'] == 'OutputOnly':
+        for testset in gen_data.testsets:
+            if testset not in gen_subtasks:
+                error('testset {} must not be defined in output only'.format(testset))
+            elif len(gen_data.tests_map[testset]) != 1:
+                error('subtask {} has more than one test'.format(testset))
 
     #Checking if a testset is defined but not used:
     for ts in set(gen_data.testsets)-set(gen_data.used_testsets):
