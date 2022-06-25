@@ -1,21 +1,14 @@
 import sys
 import os
-import re
-import fnmatch
 from collections import defaultdict
 
 from gen_data_parser import DataVisitor, parse_data
 from test_exists import test_exists
-
-
-def test_name_matches_pattern(test_name, pattern):
-    pattern_terms = re.split(",|\\|", pattern) # Split by ',' and '|'
-    pattern_terms = map(str.strip, pattern_terms)
-    return any(fnmatch.fnmatchcase(test_name, pattern_term) for pattern_term in pattern_terms)
+from util import name_matches_pattern
 
 
 def test_name_pattern_matcher(pattern):
-    return lambda test_name: test_name_matches_pattern(test_name, pattern)
+    return lambda test_name: name_matches_pattern(test_name, pattern)
 
 
 def filter_test_names_by_pattern(test_names, pattern):

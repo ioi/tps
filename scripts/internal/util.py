@@ -1,6 +1,14 @@
+import fnmatch
+import re
 import sys
 import os
 import json
+
+
+def name_matches_pattern(name, pattern):
+    pattern_terms = re.split(",|\\|", pattern) # Split by ',' and '|'
+    pattern_terms = map(str.strip, pattern_terms)
+    return any(fnmatch.fnmatchcase(name, pattern_term) for pattern_term in pattern_terms)
 
 
 def simple_usage_message(arguments_text):

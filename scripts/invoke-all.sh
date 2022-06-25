@@ -19,6 +19,12 @@ function usage {
 	errcho -e "  -w, --warning-sensitive"
 	errcho -e "\tTerminates on the first warning or error and shows the details."
 
+	errcho -e "  --solution=<test-name-pattern>"
+	errcho -e "\tInvokes only solutions matching the given pattern. Examples: solution, 'solution-*', '*-wa'"
+	errcho -e "\tMultiple patterns can be given using commas or pipes. Examples: 'solution, solution-*', 'solution|*-wa|*-tle'"
+	errcho -e "\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion."
+	errcho -e "\t      Also, use escaping (with '\\') when separating multiple patterns using pipes."
+
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
 	errcho -e "\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'"
@@ -47,6 +53,8 @@ tests_dir="${TESTS_DIR}"
 SHOW_REASON="false"
 SENSITIVE_RUN="false"
 WARNING_SENSITIVE_RUN="false"
+SPECIFIC_SOLUTIONS="false"
+SPECIFIED_SOLUTIONS_PATTERN=""
 SPECIFIC_TESTS="false"
 SPECIFIED_TESTS_PATTERN=""
 SKIP_CHECK="false"
@@ -66,6 +74,10 @@ function handle_option {
 		-w|--warning-sensitive)
 			SENSITIVE_RUN="true"
 			WARNING_SENSITIVE_RUN="true"
+			;;
+		--solution=*)
+			fetch_arg_value "SPECIFIED_SOLUTIONS_PATTERN" "-@" "--solution" "solution name"
+			SPECIFIC_SOLUTIONS="true"
 			;;
 		-t|--test=*)
 			fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
@@ -133,7 +145,7 @@ fi
 
 sensitive check_directory_exists "Tests directory" "${tests_dir}"
 
-export SHOW_REASON SENSITIVE_RUN WARNING_SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL VERBOSE_INVOKE
+export SHOW_REASON SENSITIVE_RUN WARNING_SENSITIVE_RUN SPECIFIC_SOLUTIONS SPECIFIED_SOLUTIONS_PATTERN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL VERBOSE_INVOKE
 
 
 recreate_dir "${LOGS_DIR}"

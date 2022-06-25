@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 
-from util import get_bool_environ, load_json, simple_usage_message, wait_process_success
+from util import get_bool_environ, load_json, name_matches_pattern, simple_usage_message, wait_process_success
 from color_util import cprint, cprinterr, colors
 from invoke_util import get_short_verdict, is_verdict_expected
 import tests_util as tu
@@ -12,6 +12,8 @@ INTERNALS_DIR = os.environ.get('INTERNALS')
 LOGS_DIR = os.environ.get('LOGS_DIR')
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 SOLUTIONS_JSON = os.environ.get('SOLUTIONS_JSON')
+SPECIFIC_SOLUTIONS = get_bool_environ('SPECIFIC_SOLUTIONS')
+SPECIFIED_SOLUTIONS_PATTERN = os.environ.get('SPECIFIED_SOLUTIONS_PATTERN')
 SPECIFIC_TESTS = get_bool_environ('SPECIFIC_TESTS')
 SPECIFIED_TESTS_PATTERN = os.environ.get('SPECIFIED_TESTS_PATTERN')
 SOLUTION_DIR = os.environ.get('SOLUTION_DIR')
@@ -65,6 +67,8 @@ if __name__ == '__main__':
     solutions_data = dict(load_json(SOLUTIONS_JSON))
     unmatched_verdicts = []
     for solution_filename, solution_data in solutions_data.items():
+        if SPECIFIC_SOLUTIONS and not name_matches_pattern(solution_filename, SPECIFIED_SOLUTIONS_PATTERN):
+            continue
         command = [
             'bash',
             os.path.join(INTERNALS_DIR, 'compile_solution.sh'),
