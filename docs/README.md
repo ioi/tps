@@ -190,7 +190,7 @@ It contains all solutions that are prepared and used in development of the task,
 
 ## solutions.json
 
-This file specifies the verdict of each solution. It is used by the web-interface and `invoke` to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
+This file specifies the verdict of each solution. It is used by the web-interface and `invoke` to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`, `protocol_violation`.
 There is also a special verdict `model_solution` which should be used exactly once.
 The model solution is used to generate the correct outputs for test data.
 Below is an example:

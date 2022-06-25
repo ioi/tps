@@ -32,5 +32,7 @@ def is_verdict_expected(score, verdict, expected_verdict):
         return verdict in ["Time Limit Exceeded", "Runtime Error"]
     elif expected_verdict == "partially_correct":
         return 0 < score < 1
+    elif expected_verdict == "protocol_violation":
+        return verdict == "Protocol Violation"
     else:
         raise ValueError("Invalid verdict")

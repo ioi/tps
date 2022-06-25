@@ -57,7 +57,7 @@ git_remote_name = "origin"
 
 valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
 model_solution_verdict = 'model_solution'
-valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
+valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct', 'protocol_violation')
 
 necessary_files = [
     os.path.join(VALIDATOR_DIR, 'Makefile'),

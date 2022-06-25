@@ -92,7 +92,7 @@
  *   * "Wrong Answer" -> "Output isn't correct"
  *   * "Partially Correct" -> "Output is partially correct"
  *
- * * Rename "Security Violation" to "Protocol violation".
+ * * Rename "Security Violation" to "Protocol Violation".
  *   This change was recommended by ISC in IOI 2020.
  *
  * * Add an option to skip printing message when calling quit().
@@ -2574,7 +2574,7 @@ NORETURN void InStream::quit(TResult result, const char* msg)
             break;
         case _sv:
             color = LightMagenta;
-            errorName = "Protocol violation";
+            errorName = "Protocol Violation";
             break;
         case _points:
             if (__testlib_points < 1e-5)
