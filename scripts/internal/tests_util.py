@@ -7,6 +7,10 @@ from test_exists import test_exists
 from util import name_matches_pattern
 
 
+def test_name_matches_pattern(test_name, pattern):
+    return name_matches_pattern(test_name, pattern)
+
+
 def test_name_pattern_matcher(pattern):
     return lambda test_name: name_matches_pattern(test_name, pattern)
 
